@@ -22,15 +22,15 @@ stages:
 .docs: &docs_cond
   if: ( ( branch = master ) OR ( tag =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$' ) )
 .draftrelease: &draftrelease_cond
-  condition: $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|dev|alpha)([0-9]+))?(-git[0-9a-z]{6,8})$'
+  condition: "$TRAVIS_TAG" =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|dev|alpha)([0-9]+))?(-git[0-9a-z]{6,8})$'
 .prerelease:   &prerelease_cond
-  condition: $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$'
+  condition: "$TRAVIS_TAG" =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$'
 .devrelease:   &devrelease_cond
-  condition: $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(dev|alpha)([0-9]+))(-git[0-9a-z]{6,8})?$'
+  condition: "$TRAVIS_TAG" =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(dev|alpha)([0-9]+))(-git[0-9a-z]{6,8})?$'
 .release:      &release_cond
-  condition: $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-git[0-9a-z]{6,8})?$'
+  condition: "$TRAVIS_TAG" =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-git[0-9a-z]{6,8})?$'
 # .deploy:       &deploy_cond
-#   condition: $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$'
+#   condition: "$TRAVIS_TAG" =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$'
 .deploy:       &deploy_cond
   if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$
 
@@ -66,12 +66,12 @@ after_script: skip
     - echo 'Running rpmbuild_template stage script'
     - if ! test -z ${CHANGELOG_GITHUB_TOKEN+x}; then github_changelog_generator; else echo "Not updating changelog"; fi
     - ls -laZ CHANGELOG.md
-    - echo TRAVIS_TAG    $TRAVIS_TAG
-    - echo TRAVIS_BRANCH $TRAVIS_BRANCH
-    - if test $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$'; then echo "prerelease tag"; fi
-    - if test $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(dev|alpha)([0-9]+))(-git[0-9a-z]{6,8})?$'; then echo "devrelease tag"; fi
-    - if test $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|dev|alpha)([0-9]+))?(-git[0-9a-z]{6,8})$'; then echo "draftrelease tag"; fi
-    - if test $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$'; then echo "release tag"; fi
+    - echo TRAVIS_TAG    "$TRAVIS_TAG"
+    - echo TRAVIS_BRANCH "$TRAVIS_BRANCH"
+    - if test "$TRAVIS_TAG" =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$'; then echo "prerelease tag"; fi
+    - if test "$TRAVIS_TAG" =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(dev|alpha)([0-9]+))(-git[0-9a-z]{6,8})?$'; then echo "devrelease tag"; fi
+    - if test "$TRAVIS_TAG" =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|dev|alpha)([0-9]+))?(-git[0-9a-z]{6,8})$'; then echo "draftrelease tag"; fi
+    - if test "$TRAVIS_TAG" =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$'; then echo "release tag"; fi
   after_success:
     - echo "Running after_success for rpmbuild_template stage"
 
