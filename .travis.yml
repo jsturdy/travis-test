@@ -2,6 +2,11 @@ sudo: required
 
 language: generic
 
+# ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$
+# ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$
+# ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(alpha|dev)([0-9]+))(-git[0-9a-z]{6,8})?$
+# ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-git[0-9a-z]{6,8})?$
+
 stages:
   - setup
   - compile
@@ -9,27 +14,27 @@ stages:
   - name: buildrpm
     ## CONDITIONAL STUFF BROKEN
   - name: docs
-    if: ((branch = master) OR (tag =~ ^v?(\\d+).(\\d+).(\\d+)(-(alpha|dev|pre|rc))?((\\d+$)|(-git[0-9a-z]{6,8})?)$))
+    if: ( ( branch = master ) OR ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$ ) )
   - name: prerelease
-    if: (tag =~ ^v?(\\d+).(\\d+).(\\d+)(-(pre|rc))((\\d+$)|(-git[0-9a-z]{6,8})?)$)
+    if: ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$ )
   - name: devrelease
-    if: (tag =~ ^v?(\\d+).(\\d+).(\\d+)(-(alpha|dev))((\\d+$)|(-git[0-9a-z]{6,8})?)$)
+    if: ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$ )
   - name: release
-    if: ((branch = master) AND (tag =~ ^v?(\\d+).(\\d+).(\\d+)(-git[0-9a-z]{6,8})?)$))
+    if: ( ( branch = master ) AND ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-git[0-9a-z]{6,8})?$) )
   - name: deploy
-    if: tag =~ ^v?(\d+).(\d+).(\d+)(-(alpha|dev|pre|rc))?((\d+$)|(-git[0-9a-z]{6,8})?)$
+    if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$
     
 ## CONDITIONAL STUFF BROKEN
 .docs: &docs_cond
-  if: ((branch = master) OR (tag =~ ^v?(\\d+).(\\d+).(\\d+)(-(alpha|dev|pre|rc))?((\\d+$)|(-git[0-9a-z]{6,8})?)$))
+  if: ( ( branch = master ) OR ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$ ) )
 .prerelease: &prerelease_cond
-  if: (tag =~ ^v?(\\d+).(\\d+).(\\d+)(-(pre|rc))((\\d+$)|(-git[0-9a-z]{6,8})?)$)
+  if: ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$ )
 .devrelease: &devrelease_cond
-  if: (tag =~ ^v?(\\d+).(\\d+).(\\d+)(-(alpha|dev))((\\d+$)|(-git[0-9a-z]{6,8})?)$)
+  if: ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$ )
 .release: &release_cond
-  if: ((branch = master) AND (tag =~ ^v?(\\d+).(\\d+).(\\d+)(-git[0-9a-z]{6,8})?)$))
+  if: ( ( branch = master ) AND ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-git[0-9a-z]{6,8})?$ ) )
 .deploy: &deploy_cond
-  if: tag =~ ^v?(\d+).(\d+).(\d+)(-(alpha|dev|pre|rc))?((\d+$)|(-git[0-9a-z]{6,8})?)$
+  if: ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$ )
 
 services:
   - docker
