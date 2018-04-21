@@ -1,0 +1,162 @@
+sudo: required
+
+language: generic
+
+stages:
+  - setup
+  - compile
+  - test
+  - name: buildrpm
+    ## CONDITIONAL STUFF BROKEN
+  - name: docs
+    if: ((branch = master) OR (tag =~ ^v?(\\d+).(\\d+).(\\d+)(-(alpha|dev|pre|rc))?((\\d+$)|(-git[0-9a-z]{6,8})?)$))
+  - name: prerelease
+    if: (tag =~ ^v?(\\d+).(\\d+).(\\d+)(-(pre|rc))((\\d+$)|(-git[0-9a-z]{6,8})?)$)
+  - name: devrelease
+    if: (tag =~ ^v?(\\d+).(\\d+).(\\d+)(-(alpha|dev))((\\d+$)|(-git[0-9a-z]{6,8})?)$)
+  - name: release
+    if: ((branch = master) AND (tag =~ ^v?(\\d+).(\\d+).(\\d+)(-git[0-9a-z]{6,8})?)$))
+  - name: deploy
+    if: tag =~ ^v?(\d+).(\d+).(\d+)(-(alpha|dev|pre|rc))?((\d+$)|(-git[0-9a-z]{6,8})?)$
+    
+## CONDITIONAL STUFF BROKEN
+.docs: &docs_cond
+  if: ((branch = master) OR (tag =~ ^v?(\\d+).(\\d+).(\\d+)(-(alpha|dev|pre|rc))?((\\d+$)|(-git[0-9a-z]{6,8})?)$))
+.prerelease: &prerelease_cond
+  if: (tag =~ ^v?(\\d+).(\\d+).(\\d+)(-(pre|rc))((\\d+$)|(-git[0-9a-z]{6,8})?)$)
+.devrelease: &devrelease_cond
+  if: (tag =~ ^v?(\\d+).(\\d+).(\\d+)(-(alpha|dev))((\\d+$)|(-git[0-9a-z]{6,8})?)$)
+.release: &release_cond
+  if: ((branch = master) AND (tag =~ ^v?(\\d+).(\\d+).(\\d+)(-git[0-9a-z]{6,8})?)$))
+.deploy: &deploy_cond
+  if: tag =~ ^v?(\d+).(\d+).(\d+)(-(alpha|dev|pre|rc))?((\d+$)|(-git[0-9a-z]{6,8})?)$
+
+services:
+  - docker
+
+env:
+  global:
+    ##  * CHANGELOG_GITHUB_TOKEN: for running github_changelog_generator without API rate limits
+    - secure: "l4KIjYMHZSedqHUaQGohankCBeEUiWNwQFuOMPVFzKPt3mvzOL/iqG7DLVwrk6WfED/vRdhXJ9knDf+fzQy1YmdCMjsFCVk3O2tyo4dp+Cw7X03if/cUp7T8HqbqvMC0GEG71Sz3z6g24FsO02aCJ7sR5cu1Y99SXcx7iOYdIooYEU3G5UAjC6cjEUBYI7CQ/1v6znEr2Zz46+43PUgMAl8rLUAQOcDd5wzu7tSb/uB1ykBaHzbQG+/F0lo3A9eTVJRBobwIYLCLDxfi5+92njigZ5fZUy3ws12Vqgw4Mmqlv/RlRiucNZkRaGaMk8irnTac0u4lvKJ3DynTRy3X+kPIzxGFYAoyNa/6UhqJNo8UUxTOFAg32Ox3nmxwVpauFhxB4JL/Cc/6PAuhXlL0+6QjYSznhBapm7jTIisQKOoNqezO+02BQHNwlOvsG7XBlGuOA+AxJHsS0GQPGYaBsEvk8K2yU1tHucS/74dGRcNr0yv6AlHr5kf+3STYcGxUckFSdREvCSRYPvYqcfa+9ZHbuhE/13zdFxaRXorU9m8TjeEb08Y4s0uLZ9hWMYWYeFGTaBK4vOa51Sbsp9eAIl/AHUzQogiwmHaiFqjYc7cZDGxbtcUGbIOWKxNyzJjmwJtQ9NlfFZtkTCYol+7oaIxYu5evqPVMuTAF2+KxHcw="
+
+before_install:
+  - echo "Running before_install"
+
+# Stages run in their own VMs, nothing gets transferred from stage to stage
+script:
+  - echo 'Running test stage script'
+
+# How to link the environments/outputs from above with the jobs below?
+.rpmbuild: &rpmbuild_template
+  before_install:
+    - "Running before_install for rpmbuild_template"
+    - gem install github_changelog_generator
+  script:
+    - echo 'Running rpmbuild_template stage script'
+    - if ! test -z ${CHANGELOG_GITHUB_TOKEN+x}; then github_changelog_generator; else echo "Not updating changelog"; fi
+    - ls -laZ CHANGELOG.md
+  after_success:
+    - "Running after_success for rpmbuild_template stage"
+
+.release: &release_template
+  skip_cleanup: true
+  # publish to Github releases
+  provider: releases
+  api_key:
+    secure: "c2sRTcMJMfNaWvVz6e3k3yKuTvrsJSFYQyLwpZBZusOtcBxAibzDwJsAcBkUdSCb6GPUhpXk0EpJX3MGh2dpFTLTjH62m6T3+Ri5PDK/agp2707rmCv7pa1bXlGuzP8AjBXctZjXQZGmGQhLFDUU3dgtpyckqOrEiC8jVTKaaTglMd0Tb5rNatsc875+gCuJ69ZnMp0hVWPHTgq0VW54duVuMGnzoX8YeXXot2eT3Wl5xXnPa1hgA3ys9bKYv321tqu74u7oizOZ4dXRxShWc0wTDd8NVIBMR+QAN+rAu73st0iFCM17jqFiO0TMHZ4b5A79DFOtpIubYJ48yKfUjQ3Ra5Aa42/FySsW8b4Ir4pvxbPTANIDdQl+uH1sMqSYKVCMEHXTrrNsBdksKuy73a0rgPTLk3wfcMKaMbnHWohXEG0gwgnhMn0jkOIUWiitVf5frl8bapnkuWfxQI9EI6dtPLVnhDr/MwEdiJP4C1NTd32oRXioIOgUhFH+vH4ZQd4ALa8uC5Ec3Z0uvb7xsbQgtWs50EtYwJY8HfobsVLU9NRPS/GZ/m0rOj8ki6S67Z3/QkANyp5wqV2pSpr1ZWyTnd8n/My9uy8G7cOgou3KiZRtoMqKaOFbGK/2AEYR7A2KC//HBtI4L67zcsKsRtbquKBfYupJ2/WM2ATplhk="
+  file_glob: true
+  file:
+    - LICENSE
+    - README.md
+    - CHANGELOG.md
+
+  ## pre-releases and draft releases for tags with pre/alpha/dev/gitHASH in the name
+  # draft: true # for tags with dev/alpha in the name, or
+  # prerelease: true # for tags with pre in the name
+  ## only deploy full release when the tag exactly matches vX.Y.Z (with or without the v)
+  prerelease: false # for tags with pre in the name
+  draft: false # for tags with pre in the nameprerelease: false
+  on:
+    repo: jsturdy/travis-test
+    # branch: master
+    tags: true
+  after_deploy: skip
+
+jobs:
+  include:
+    - stage: buildrpm
+      <<: *rpmbuild_template
+      deploy: # Deploy from the RPM build stage, but only on conditions
+        - <<: *release_template
+          # prerelease: true # for tags with dev/alpha in the name
+          # draft: true # for tags with pre/rc in the name
+          <<: *deploy_cond
+          on:
+            repo: jsturdy/travis-test
+            tags: true
+    - stage: docs
+      before_script: skip
+      before_install: skip
+      script:
+        - echo "Running docs stage"
+      after_success: skip
+    - stage: coverage
+      before_script: skip
+      before_install: skip
+      script: skip
+      after_success:
+        - echo "Running after_success for coverage stage"
+        - sudo pip install -U codecov
+        - codecov
+        - bash <(curl -s https://codecov.io/bash) && echo "Uploaded code coverage"
+    - stage: prerelease
+      <<: *prerelease_cond
+      <<: *rpmbuild_template
+      deploy:
+        - <<: *release_template
+          prerelease: true # for tags with dev/alpha in the name
+          on:
+            repo: jsturdy/travis-test
+            tags: true
+      after_success: skip
+
+    - stage: devrelease
+      <<: *devrelease_cond
+      <<: *rpmbuild_template
+      script:
+        - echo "running devrelease stage"
+      before_deploy: skip
+      deploy:
+        - <<: *release_template
+          draft: true
+      after_success: skip
+      after_deploy: skip
+
+    - stage: release
+      <<: *release_cond
+      <<: *rpmbuild_template
+      script:
+        - echo "Running release stage"
+      before_deploy:
+        - git config --local user.name jsturdy
+        - git config --local user.email jsturdy
+      deploy:
+        - <<: *release_template
+      after_success: skip
+      after_deploy:
+
+    - stage: deploy
+      <<: *deploy_cond
+      before_script: skip
+      before_install: skip
+      - script: echo "Running deploy stage"
+      after_success: skip
+
+## Defaults, applied to the 'test' stage
+after_success:
+  - ""
+
+after_failure: skip
+
+after_script: skip
+ 

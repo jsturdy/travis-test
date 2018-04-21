@@ -8,6 +8,7 @@
 # Don't ignore special files
 !*.md
 !*.rst
+!.travis.yml
 
 # Don't ignore makefiles
 !Makefile
