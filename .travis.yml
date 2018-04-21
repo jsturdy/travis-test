@@ -68,6 +68,11 @@ after_script: skip
     - ls -laZ CHANGELOG.md
     - echo TRAVIS_TAG    "$TRAVIS_TAG"
     - echo TRAVIS_BRANCH "$TRAVIS_BRANCH"
+    - ./return_bash_match.sh ${TRAVIS_TAG}
+    - ./return_bash_match.sh ${TRAVIS_TAG}
+    - ./return_bash_match.sh ${TRAVIS_TAG}
+    - ./return_bash_match.sh ${TRAVIS_TAG}
+
   after_success:
     - echo "Running after_success for rpmbuild_template stage"
 
@@ -113,12 +118,13 @@ jobs:
             <<: *prerelease_cond
         - <<: *release_template
           prerelease: false
+          draft: true
           on:
             tags: true
             <<: *draftrelease_cond
         - <<: *release_template
-          draft: true
           prerelease: true
+          draft: true
           on:
             tags: true
             <<: *devrelease_cond
@@ -176,7 +182,6 @@ jobs:
     #   after_deploy:
 
     - stage: deployment
-      # <<: *deploy_cond
       <<: *rpmbuild_template
       deploy:
         - <<: *release_template
@@ -197,8 +202,8 @@ jobs:
             tags: true
             <<: *draftrelease_cond
         - <<: *release_template
-          draft: true
           prerelease: true
+          draft: true
           name: $TRAVIS_TAG
           on:
             tags: true
