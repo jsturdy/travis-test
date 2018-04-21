@@ -2,24 +2,19 @@ sudo: required
 
 language: generic
 
-# ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$
-# ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$
-# ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(alpha|dev)([0-9]+))(-git[0-9a-z]{6,8})?$
-# ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-git[0-9a-z]{6,8})?$
-
 stages:
   - setup
   - compile
   - test
   - buildrpm
   - name: docs
-    if: ( ( branch = master ) OR ( tag =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$' ) )
+    if: ( ( branch = master ) OR ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$ ) )
   - name: prerelease
-    if: ( tag =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$' )
+    if: ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$ )
   - name: devrelease
-    if: ( tag =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$' )
+    if: ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$ )
   - name: release
-    if: ( ( branch = master ) AND ( tag =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-git[0-9a-z]{6,8})?$' ) )
+    if: ( ( branch = master ) AND ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-git[0-9a-z]{6,8})?$ ) )
   - name: deployment
     if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$
 
@@ -90,8 +85,8 @@ after_script: skip
   # draft: true # for tags with dev/alpha in the name, or
   # prerelease: true # for tags with pre in the name
   ## only deploy full release when the tag exactly matches vX.Y.Z (with or without the v)
-  prerelease: true # for tags with pre in the name
-  draft: true # for tags with pre in the name
+  prerelease: true
+  draft: true
   on:
     repo: jsturdy/travis-test
     tags: true
