@@ -29,8 +29,10 @@ stages:
   condition: $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(dev|alpha)([0-9]+))(-git[0-9a-z]{6,8})?$'
 .release:      &release_cond
   condition: $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-git[0-9a-z]{6,8})?$'
+# .deploy:       &deploy_cond
+#   condition: $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$'
 .deploy:       &deploy_cond
-  condition: $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$'
+  if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$
 
 services:
   - docker
@@ -176,7 +178,7 @@ jobs:
     #   after_deploy:
 
     - stage: deployment
-      # <<: *deploy_cond
+      <<: *deploy_cond
       <<: *rpmbuild_template
       deploy:
         - <<: *release_template
