@@ -68,10 +68,10 @@ after_script: skip
     - ls -laZ CHANGELOG.md
     - echo TRAVIS_TAG    "$TRAVIS_TAG"
     - echo TRAVIS_BRANCH "$TRAVIS_BRANCH"
-    - if test "$TRAVIS_TAG" =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$'; then echo "prerelease tag"; fi
-    - if test "$TRAVIS_TAG" =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(dev|alpha)([0-9]+))(-git[0-9a-z]{6,8})?$'; then echo "devrelease tag"; fi
-    - if test "$TRAVIS_TAG" =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|dev|alpha)([0-9]+))?(-git[0-9a-z]{6,8})$'; then echo "draftrelease tag"; fi
-    - if test "$TRAVIS_TAG" =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$'; then echo "release tag"; fi
+    - if [[ "$TRAVIS_TAG" =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$]] ; then echo "prerelease tag"; fi
+    - if [[ "$TRAVIS_TAG" =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(dev|alpha)([0-9]+))(-git[0-9a-z]{6,8})?$]] ; then echo "devrelease tag"; fi
+    - if [[ "$TRAVIS_TAG" =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|dev|alpha)([0-9]+))?(-git[0-9a-z]{6,8})$]] ; then echo "draftrelease tag"; fi
+    - if [[ "$TRAVIS_TAG" =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$]] ; then echo "release tag"; fi
   after_success:
     - echo "Running after_success for rpmbuild_template stage"
 
