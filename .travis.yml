@@ -158,7 +158,7 @@ jobs:
     - stage: deployment
       # <<: *deploy_cond
       <<: *rpmbuild_template
-      deploy: # Deploy from the RPM build stage, but only on conditions
+      deploy:
         - <<: *release_template
           prerelease: false
           draft: false
@@ -186,3 +186,5 @@ jobs:
             tags: true
             <<: *devrelease_cond
       after_success: skip
+      after_deploy:
+        - echo "Successfully deployed"
