@@ -1,32 +1,16 @@
-# Prerequisites
-*.d
+# Ignore everything
+*
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# Don't ignore git settings
+!*.gitignore
+!*.gitattributes
 
-# Precompiled Headers
-*.gch
-*.pch
+# Don't ignore special files
+!*.md
+!*.rst
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+# Don't ignore makefiles
+!Makefile
 
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+# Don't ignore subdirectories
+!*/
