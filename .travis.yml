@@ -11,8 +11,7 @@ stages:
   - setup
   - compile
   - test
-  - name: buildrpm
-    ## CONDITIONAL STUFF BROKEN
+  - buildrpm
   - name: docs
     if: ( ( branch = master ) OR ( tag =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$' ) )
   - name: prerelease
@@ -24,17 +23,21 @@ stages:
   - name: deploy
     if: tag =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$'
 
-## CONDITIONAL STUFF BROKEN
+## CONDITIONAL STUFF BROKEN, above works, what's the difference?
 .docs: &docs_cond
   if: ( ( branch = master ) OR ( tag =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$' ) )
+.draftrelease: &draftrelease_cond
+  condition: $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|dev|alpha)([0-9]+))?(-git[0-9a-z]{6,8})$'
 .prerelease: &prerelease_cond
-  if: ( tag =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$' )
+  condition: $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$'
 .devrelease: &devrelease_cond
-  if: ( tag =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$' )
+  condition: $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$'
 .release: &release_cond
-  if: ( ( branch = master ) AND ( tag =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-git[0-9a-z]{6,8})?$' ) )
+  condition:
+    - $TRAVIS_BRANCH = master
+    - $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-git[0-9a-z]{6,8})?$'
 .deploy: &deploy_cond
-  if: ( tag =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$' )
+  condition: $TRAVIS_TAG =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$'
 
 services:
   - docker
@@ -88,7 +91,7 @@ after_script: skip
   # prerelease: true # for tags with pre in the name
   ## only deploy full release when the tag exactly matches vX.Y.Z (with or without the v)
   prerelease: false # for tags with pre in the name
-  draft: false # for tags with pre in the nameprerelease: false
+  draft: false # for tags with pre in the name
   on:
     repo: jsturdy/travis-test
     # branch: master
@@ -101,12 +104,29 @@ jobs:
       <<: *rpmbuild_template
       deploy: # Deploy from the RPM build stage, but only on conditions
         - <<: *release_template
-          # prerelease: true # for tags with dev/alpha in the name
-          # draft: true # for tags with pre/rc in the name
-          # <<: *deploy_cond
           on:
             repo: jsturdy/travis-test
             tags: true
+            <<: *release_cond
+        - <<: *release_template
+          prerelease: true
+          on:
+            repo: jsturdy/travis-test
+            tags: true
+            <<: *prerelease_cond
+        - <<: *release_template
+          draft: true
+          on:
+            repo: jsturdy/travis-test
+            tags: true
+            <<: *draftrelease_cond
+        - <<: *release_template
+          draft: true
+          prerelease: true
+          on:
+            repo: jsturdy/travis-test
+            tags: true
+            <<: *devrelease_cond
     - stage: docs
       before_script: skip
       before_install: skip
