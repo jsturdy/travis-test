@@ -145,12 +145,12 @@ jobs:
       after_success: skip
       after_deploy:
 
-    - stage: deploy
-      <<: *deploy_cond
-      before_script: skip
-      before_install: skip
-      - script: echo "Running deploy stage"
-      after_success: skip
+    # - stage: deploy
+    #   <<: *deploy_cond
+    #   before_script: skip
+    #   before_install: skip
+    #   - script: echo "Running deploy stage"
+    #   after_success: skip
 
 ## Defaults, applied to the 'test' stage
 after_success:
