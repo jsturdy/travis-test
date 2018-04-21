@@ -54,14 +54,14 @@ script:
 # How to link the environments/outputs from above with the jobs below?
 .rpmbuild: &rpmbuild_template
   before_install:
-    - "Running before_install for rpmbuild_template"
+    - echo "Running before_install for rpmbuild_template"
     - gem install github_changelog_generator
   script:
     - echo 'Running rpmbuild_template stage script'
     - if ! test -z ${CHANGELOG_GITHUB_TOKEN+x}; then github_changelog_generator; else echo "Not updating changelog"; fi
     - ls -laZ CHANGELOG.md
   after_success:
-    - "Running after_success for rpmbuild_template stage"
+    - echo "Running after_success for rpmbuild_template stage"
 
 .release: &release_template
   skip_cleanup: true
