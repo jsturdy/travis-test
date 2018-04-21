@@ -96,6 +96,33 @@ jobs:
   include:
     - stage: buildrpm
       <<: *rpmbuild_template
+      deploy:
+        - <<: *release_template
+          prerelease: false
+          draft: false
+          on:
+            repo: jsturdy/travis-test
+            tags: true
+            <<: *release_cond
+        - <<: *release_template
+          draft: false
+          on:
+            repo: jsturdy/travis-test
+            tags: true
+            <<: *prerelease_cond
+        - <<: *release_template
+          prerelease: false
+          on:
+            repo: jsturdy/travis-test
+            tags: true
+            <<: *draftrelease_cond
+        - <<: *release_template
+          draft: true
+          prerelease: true
+          on:
+            repo: jsturdy/travis-test
+            tags: true
+            <<: *devrelease_cond
 
     - stage: docs
       before_script: skip
