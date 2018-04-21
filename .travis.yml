@@ -69,9 +69,6 @@ after_script: skip
     - echo TRAVIS_TAG    "$TRAVIS_TAG"
     - echo TRAVIS_BRANCH "$TRAVIS_BRANCH"
     - ./return_bash_match.sh ${TRAVIS_TAG}
-    - ./return_bash_match.sh ${TRAVIS_TAG}
-    - ./return_bash_match.sh ${TRAVIS_TAG}
-    - ./return_bash_match.sh ${TRAVIS_TAG}
 
   after_success:
     - echo "Running after_success for rpmbuild_template stage"
@@ -111,23 +108,29 @@ jobs:
           on:
             tags: true
             <<: *release_cond
+          after_deploy:
+            - echo "Successfully deployed release"
         - <<: *release_template
-          draft: false
           on:
             tags: true
             <<: *prerelease_cond
+          after_deploy:
+            - echo "Successfully deployed prerelease"
         - <<: *release_template
           prerelease: false
           draft: true
           on:
             tags: true
             <<: *draftrelease_cond
+          after_deploy:
+            - echo "Successfully deployed draft release"
         - <<: *release_template
           prerelease: true
-          draft: true
           on:
             tags: true
             <<: *devrelease_cond
+          after_deploy:
+            - echo "Successfully deployed devrelease"
 
     - stage: docs
       before_script: skip
@@ -190,24 +193,26 @@ jobs:
           on:
             tags: true
             <<: *release_cond
+          after_deploy:
+            - echo "Successfully deployed release"
         - <<: *release_template
-          draft: false
           on:
             tags: true
             <<: *prerelease_cond
+          after_deploy:
+            - echo "Successfully deployed prerelease"
         - <<: *release_template
           prerelease: false
           draft: true
           on:
             tags: true
             <<: *draftrelease_cond
+          after_deploy:
+            - echo "Successfully deployed draft release"
         - <<: *release_template
           prerelease: true
-          draft: true
-          name: $TRAVIS_TAG
           on:
             tags: true
             <<: *devrelease_cond
-      after_success: skip
-      after_deploy:
-        - echo "Successfully deployed"
+          after_deploy:
+            - echo "Successfully deployed devrelease"
