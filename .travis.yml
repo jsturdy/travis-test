@@ -159,7 +159,7 @@ jobs:
 
 ## Defaults, applied to the 'test' stage
 after_success:
-  - ""
+  - echo "Running after_success for test stage"
 
 after_failure: skip
 
