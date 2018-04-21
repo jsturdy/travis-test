@@ -10,25 +10,25 @@ stages:
   - name: docs
     if: ( ( branch = master ) OR ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$ ) )
   - name: prerelease
-    if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$
+    if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))$
   - name: devrelease
-    if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$
+    if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))$
   - name: release
-    if: ( ( branch = master ) AND ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-git[0-9a-z]{6,8})?$ ) )
+    if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)$
   - name: deployment
     if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$
 
 ## CONDITIONAL STUFF BROKEN, above works, what's the difference?
 .docs: &docs_cond
-  if: ( ( branch = master ) OR ( tag =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$' ) )
+  if: ( ( branch = master ) OR ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$ ) )
 .draftrelease: &draftrelease_cond
   condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|dev|alpha)([0-9]+))?(-git[0-9a-z]{6,8})$
 .prerelease:   &prerelease_cond
-  condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$
+  condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))$
 .devrelease:   &devrelease_cond
-  condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(dev|alpha)([0-9]+))(-git[0-9a-z]{6,8})?$
+  condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(dev|alpha)([0-9]+))$
 .release:      &release_cond
-  condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-git[0-9a-z]{6,8})?$
+  condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)$
 # .deploy:       &deploy_cond
 #   condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$
 .deploy:       &deploy_cond
@@ -88,7 +88,7 @@ after_script: skip
   # prerelease: true # for tags with pre in the name
   ## only deploy full release when the tag exactly matches vX.Y.Z (with or without the v)
   prerelease: true
-  draft: true
+  draft: false
   name: $TRAVIS_TAG
   body: "Please fill me, preferably with release notes for $TRAVIS_TAG"
   on:
@@ -99,29 +99,29 @@ jobs:
   include:
     - stage: buildrpm
       <<: *rpmbuild_template
-      deploy:
-        - <<: *release_template
-          prerelease: false
-          draft: false
-          on:
-            tags: true
-            <<: *release_cond
-        - <<: *release_template
-          draft: false
-          on:
-            tags: true
-            <<: *prerelease_cond
-        - <<: *release_template
-          prerelease: false
-          on:
-            tags: true
-            <<: *draftrelease_cond
-        - <<: *release_template
-          draft: true
-          prerelease: true
-          on:
-            tags: true
-            <<: *devrelease_cond
+      # deploy:
+      #   - <<: *release_template
+      #     prerelease: false
+      #     draft: false
+      #     on:
+      #       tags: true
+      #       <<: *release_cond
+      #   - <<: *release_template
+      #     draft: false
+      #     on:
+      #       tags: true
+      #       <<: *prerelease_cond
+      #   - <<: *release_template
+      #     prerelease: false
+      #     on:
+      #       tags: true
+      #       <<: *draftrelease_cond
+      #   - <<: *release_template
+      #     draft: true
+      #     prerelease: true
+      #     on:
+      #       tags: true
+      #       <<: *devrelease_cond
 
     - stage: docs
       before_script: skip
@@ -176,7 +176,7 @@ jobs:
     #   after_deploy:
 
     - stage: deployment
-      <<: *deploy_cond
+      # <<: *deploy_cond
       <<: *rpmbuild_template
       deploy:
         - <<: *release_template
@@ -192,6 +192,7 @@ jobs:
             <<: *prerelease_cond
         - <<: *release_template
           prerelease: false
+          draft: true
           on:
             tags: true
             <<: *draftrelease_cond
