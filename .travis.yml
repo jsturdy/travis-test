@@ -20,7 +20,7 @@ stages:
     if: ( tag =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))(-git[0-9a-z]{6,8})?$' )
   - name: release
     if: ( ( branch = master ) AND ( tag =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-git[0-9a-z]{6,8})?$' ) )
-  - name: deploy
+  - name: deployment
     if: tag =~ '^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$'
 
 ## CONDITIONAL STUFF BROKEN, above works, what's the difference?
@@ -90,11 +90,10 @@ after_script: skip
   # draft: true # for tags with dev/alpha in the name, or
   # prerelease: true # for tags with pre in the name
   ## only deploy full release when the tag exactly matches vX.Y.Z (with or without the v)
-  prerelease: false # for tags with pre in the name
-  draft: false # for tags with pre in the name
+  prerelease: true # for tags with pre in the name
+  draft: true # for tags with pre in the name
   on:
     repo: jsturdy/travis-test
-    # branch: master
     tags: true
   after_deploy: skip
 
@@ -102,31 +101,6 @@ jobs:
   include:
     - stage: buildrpm
       <<: *rpmbuild_template
-      deploy: # Deploy from the RPM build stage, but only on conditions
-        - <<: *release_template
-          on:
-            repo: jsturdy/travis-test
-            tags: true
-            <<: *release_cond
-        - <<: *release_template
-          prerelease: true
-          on:
-            repo: jsturdy/travis-test
-            tags: true
-            <<: *prerelease_cond
-        - <<: *release_template
-          draft: true
-          on:
-            repo: jsturdy/travis-test
-            tags: true
-            <<: *draftrelease_cond
-        - <<: *release_template
-          draft: true
-          prerelease: true
-          on:
-            repo: jsturdy/travis-test
-            tags: true
-            <<: *devrelease_cond
     - stage: docs
       before_script: skip
       before_install: skip
@@ -178,9 +152,33 @@ jobs:
       after_success: skip
       after_deploy:
 
-    # - stage: deploy
-    #   <<: *deploy_cond
-    #   before_script: skip
-    #   before_install: skip
-    #   - script: echo "Running deploy stage"
-    #   after_success: skip
+    - stage: deployment
+      <<: *rpmbuild_template
+      deploy: # Deploy from the RPM build stage, but only on conditions
+        - <<: *release_template
+          prerelease: false
+          draft: false
+          on:
+            repo: jsturdy/travis-test
+            tags: true
+            <<: *release_cond
+        - <<: *release_template
+          draft: false
+          on:
+            repo: jsturdy/travis-test
+            tags: true
+            <<: *prerelease_cond
+        - <<: *release_template
+          prerelease: false
+          on:
+            repo: jsturdy/travis-test
+            tags: true
+            <<: *draftrelease_cond
+        - <<: *release_template
+          draft: true
+          prerelease: true
+          on:
+            repo: jsturdy/travis-test
+            tags: true
+            <<: *devrelease_cond
+      after_success: skip
